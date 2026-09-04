@@ -1,0 +1,51 @@
+name: Terrform infra and  deploy dotnet app
+on:
+  workflow_dispatch:
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout source code
+              uses: actions/checkout@v6
+            - name: Install Terraform
+              uses: hashicorp/setup-terraform@v3
+              with:
+                terraform_version: 1.7.6
+            - name: azure login
+              uses: azure/login@v1
+              with:
+                creds: ${{ secrets.AZURE_CRED}}
+            - name: terraform init
+              run: |
+                cd Terraform
+                terraform init
+            - name: terraform plan
+              run: |
+                cd Terraform
+                terraform plan
+            - name: terraform apply
+              run: |
+                cd Terraform
+                terraform apply -auto-approve
+            - name: Install .Net
+              uses: actions/setup-dotnet@v3
+              with: 
+                dotnet-version: 10.0.x
+            - name: restore dependencies
+              run: |
+                cd GHAdotnet
+                dotnet restore
+            - name: Build
+              run: |
+                cd GHAdotnet
+                dotnet build --configuration Release
+            - name: publish
+              run: |
+                cd GHAdotnet
+                dotnet publish --configuration Release --output ./publish
+            - name: Deploy to Azure Web App
+              uses: azure/webapps-deploy@v2
+              with:
+                app-name: webapp
+                package: ./publish
