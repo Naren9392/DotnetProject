@@ -1,0 +1,15 @@
+name: Build dotnet app
+on: workflow_dispatch
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: get source code
+              uses: actions/checkout@v3
+            - name: Install .Net
+              uses: actions/setup-dotnet@v3
+              with: 
+                dotnet-version: 10.0.x
+            - name: restore dependencies
+              run: 
