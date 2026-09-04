@@ -12,4 +12,10 @@ jobs:
               with: 
                 dotnet-version: 10.0.x
             - name: restore dependencies
-              run: 
+              run: |
+                cd GHAdotnet
+                dotnet restore
+            - name: Build
+              run: |
+                cd GHAdotnet
+                dotnet build --configuration Release
